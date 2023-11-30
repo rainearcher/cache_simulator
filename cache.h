@@ -40,7 +40,7 @@ private:
 	CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
 	// Add your Victim cache here ...
 	
-	Stats myStat;
+	Stats stats;
 	// add more things here
 public:
 	Cache();

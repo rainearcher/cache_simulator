@@ -10,10 +10,10 @@ Cache::Cache()
 
 	// Do the same for Victim Cache ...
 
-	this->myStat.missL1 =0;
-	this->myStat.missL2 =0;
-	this->myStat.hitL1 =0;
-	this->myStat.hitL2 =0;
+	this->stats.missesL1 =0;
+	this->stats.missesL2 =0;
+	this->stats.hitsL1 =0;
+	this->stats.hitsL2 =0;
 
 	// Add stat for Victim cache ... 
 	
