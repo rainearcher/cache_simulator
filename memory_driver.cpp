@@ -35,7 +35,7 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 	
 	// reading the text file
 	string line;
-	vector<trace> myTrace;
+	vector<trace> traces;
 	int TraceSize = 0;
 	string s1,s2,s3,s4;
     while( getline(fin,line) )
@@ -45,19 +45,19 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
             getline(ss,s2,','); 
             getline(ss,s3,','); 
             getline(ss,s4,',');
-            myTrace.push_back(trace()); 
-            myTrace[TraceSize].MemR = stoi(s1);
-            myTrace[TraceSize].MemW = stoi(s2);
-            myTrace[TraceSize].adr = stoi(s3);
-            myTrace[TraceSize].data = stoi(s4);
+            traces.push_back(trace()); 
+            traces[TraceSize].MemR = stoi(s1);
+            traces[TraceSize].MemW = stoi(s2);
+            traces[TraceSize].adr = stoi(s3);
+            traces[TraceSize].data = stoi(s4);
             //cout<<myTrace[TraceSize].MemW << endl;
             TraceSize+=1;
         }
 
 
 	// Defining cache and stat
-    cache myCache;
-    int myMem[MEM_SIZE]; 
+    Cache cache;
+    int memory[MEM_SIZE]; 
 
 
 	int traceCounter = 0;
@@ -69,12 +69,12 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 	// this is the main loop of the code
 	while(traceCounter < TraceSize){
 		
-		cur_MemR = myTrace[traceCounter].MemR;
-		cur_MemW = myTrace[traceCounter].MemW;
-		cur_data = myTrace[traceCounter].data;
-		cur_adr = myTrace[traceCounter].adr;
+		cur_MemR = traces[traceCounter].MemR;
+		cur_MemW = traces[traceCounter].MemW;
+		cur_data = traces[traceCounter].data;
+		cur_adr = traces[traceCounter].adr;
 		traceCounter += 1;
-		myCache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr, myMem); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
+		cache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr, memory); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
 	}
 	
 	float L1_miss_rate, L2_miss_rate, AAT; 
