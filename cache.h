@@ -50,6 +50,10 @@ private:
 	int l1_tag(int addr);
 	bool addr_in_l1(int addr);
 
+	int victim_tag(int addr);
+
+	int block_address(int addr);
+
 private:
 	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
 	CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 

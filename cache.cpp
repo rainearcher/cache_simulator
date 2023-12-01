@@ -23,34 +23,57 @@ void Cache::controller(bool MemR, bool MemW, int* data, int addr)
         }
 
         stats.missesL1++;
+
+        int victimIndex;
+        for (victimIndex = 0; victimIndex < VICTIM_SIZE; victimIndex++)
+        {
+            if (victim[victimIndex].tag == victim_tag(addr) && victim[victimIndex].valid)
+            {
+                stats.hitsVic++;
+                CacheBlock victimToL1Block = victim[victimIndex];
+                CacheBlock L1ToVictimBlock = L1[victimIndex];
+
+                victimToL1Block.tag = l1_tag(addr);
+                L1ToVictimBlock.tag *= L1_CACHE_SETS;
+
+                L1[l1_index(addr)] = victimToL1Block;
+                victim[victimIndex] = L1ToVictimBlock;
+                return;
+            }
+        }
+        stats.missesVic++;
+        
         CacheBlock evictedBlock = read_mem_into_l1(addr);
         if (!evictedBlock.valid)
             return;
 
-        bool found = false;
-        int index;
-        for (index = 0; index < VICTIM_SIZE; index++)
+        evictedBlock.tag *= L1_CACHE_SETS;
+        evictedBlock.lruPosition = -1;
+        bool inserted = false;
+        for (victimIndex = 0; victimIndex < VICTIM_SIZE; victimIndex++)
         {
-            if (victim[index].tag == block_address(addr) && victim[index].valid)
+            if (!victim[victimIndex].valid)
             {
-                found = true;
+                victim[victimIndex] = evictedBlock;
+                inserted = true;
                 break;
             }
         }
-        if (found)
+        if (!inserted)
         {
-            stats.hitsVic++;
-            CacheBlock targetBlock = victim[index];
-            int newL1index = addr % L1_CACHE_SETS;
-            int newL1tag = addr - index;
-            CacheBlock evictedL1Block = L1[index];
-            targetBlock.tag = newL1tag;
-            int newVictimTag = evictedL1Block.tag + index;
-            evictedL1Block.tag = newVictimTag;
-
-            L1[newL1index] = targetBlock;
-            victim[index] = evictedL1Block;
-            return;
+            for (auto &it : victim)
+            {
+                if (it.lruPosition == (VICTIM_SIZE - 1))
+                {
+                    it = evictedBlock;
+                }
+            }
+        }
+        for (victimIndex = 0; victimIndex < VICTIM_SIZE; victimIndex++)
+        {
+            if (!victim[victimIndex].valid)
+                continue;
+            victim[victimIndex].lruPosition++;
         }
     }
     else // MemW
@@ -61,7 +84,32 @@ void Cache::controller(bool MemR, bool MemW, int* data, int addr)
             read_mem_into_l1(addr);
             return;
         }
+        for (int victimIndex = 0; victimIndex < VICTIM_SIZE; victimIndex++)
+        {
+            if (victim[victimIndex].tag == victim_tag(addr) && victim[victimIndex].valid)
+            {
+                for (int i = 0; i < BLOCK_SIZE; i++)
+                {
+                    victim[victimIndex].data[i] = mainMemory[block_address(addr) + i];
+                }
+                victim[victimIndex].tag = victim_tag(addr);
+                victim[victimIndex].valid = true;
+                int oldPosition = victim[victimIndex].lruPosition;
+                for (auto &it : victim)
+                {
+                    if(it.lruPosition < oldPosition)
+                        it.lruPosition++;
+                }
+                victim[victimIndex].lruPosition = 0;
+                return;
+            }
+        }
     }
+}
+
+int Cache::victim_tag(int addr)
+{
+    return block_address(addr);
 }
 
 bool Cache::addr_in_l1(int addr)
@@ -84,7 +132,7 @@ CacheBlock Cache::read_mem_into_l1(int addr)
     return oldBlock;
 }
 
-int block_address(int addr)
+int Cache::block_address(int addr)
 {
     return addr - block_offset(addr);
 }

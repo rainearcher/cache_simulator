@@ -77,7 +77,7 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 		cache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
 	}
 	
-	cout<< "(" << cache.L1_miss_rate()<<","<<cache.L2_miss_rate()<<","<<cache.AAT()<<")"<<endl;
+	cout<< "(" << cache.L1_miss_rate()<<","<<cache.Victim_miss_rate()<<","<<cache.L2_miss_rate()<<","<<cache.AAT()<<")"<<endl;
 
 	// closing the file
 	fin.close();
