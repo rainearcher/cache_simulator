@@ -56,8 +56,8 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 
 
 	// Defining cache and stat
-    Cache cache;
     int memory[MEM_SIZE]; 
+    Cache cache(memory);
 
 
 	int traceCounter = 0;
@@ -74,14 +74,10 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 		cur_data = traces[traceCounter].data;
 		cur_adr = traces[traceCounter].adr;
 		traceCounter += 1;
-		cache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr, memory); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
+		cache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
 	}
 	
-	float L1_miss_rate, L2_miss_rate, AAT; 
-	//compute the stats here:
-
-
-	cout<< "(" << L1_miss_rate<<","<<L2_miss_rate<<","<<AAT<<")"<<endl;
+	cout<< "(" << cache.L1_miss_rate()<<","<<cache.L2_miss_rate()<<","<<cache.AAT()<<")"<<endl;
 
 	// closing the file
 	fin.close();
