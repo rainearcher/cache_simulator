@@ -34,6 +34,7 @@ struct Stats
 	// add more stat if needed. Don't forget to initialize!
 };
 
+
 class Cache {
 public:
 	Cache(int* mainMem);
@@ -42,6 +43,12 @@ public:
 	float L2_miss_rate();
 	float Victim_miss_rate();
 	float AAT();
+
+private:
+	CacheBlock read_mem_into_l1(int addr);
+	int l1_index(int addr);
+	int l1_tag(int addr);
+	bool addr_in_l1(int addr);
 
 private:
 	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
