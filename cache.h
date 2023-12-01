@@ -46,11 +46,28 @@ public:
 
 private:
 	CacheBlock read_mem_into_l1(int addr);
+	CacheBlock build_l1_block_from_mem(int addr);
+
+	void mem_read(int addr);
+	void mem_write(int addr, int* data);
+
 	int l1_index(int addr);
 	int l1_tag(int addr);
 	bool addr_in_l1(int addr);
 
 	int victim_tag(int addr);
+	bool victim_cache_block_is_target(CacheBlock &block, int addr);
+	void read_mem_into_victim(CacheBlock* targetBlock, int addr);
+	void set_new_victim_block_as_mru(CacheBlock* block);
+	void set_existing_victim_block_as_mru(CacheBlock* block);
+	bool is_victim_cache_full();
+	void insert_block_into_nonfull_victim_cache(CacheBlock block);
+	void insert_block_into_full_victim_cache(CacheBlock block);
+	bool addr_hit_in_victim(int addr);
+	CacheBlock* get_victim_block_with_addr(int addr);
+
+	void evict_l1(int addr);
+	void swap_target_victim_block_with_evicted_l1_block(CacheBlock &targetBlock, int addr);
 
 	int block_address(int addr);
 
