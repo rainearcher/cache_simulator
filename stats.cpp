@@ -1,4 +1,5 @@
 #include "stats.h"
+#include "const.h"
 
 void Stats::l1_hit()
 {
@@ -47,5 +48,5 @@ double Stats::Victim_miss_rate()
 
 double Stats::AAT()
 {
-    return 1 + L1_miss_rate() * (1 + Victim_miss_rate() * (8 + L2_miss_rate() * 100));
+    return L1_HIT_TIME + L1_miss_rate() * (VICTIM_HIT_TIME + Victim_miss_rate() * (L2_HIT_TIME + L2_miss_rate() * MAIN_MEM_ACCESS_TIME));
 }
