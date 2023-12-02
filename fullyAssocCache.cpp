@@ -86,14 +86,15 @@ void FullAssocCache::insert_block_into_full_cache(CacheBlock newBlock)
 CacheBlock FullAssocCache::evict_lru_block()
 {
     assert(is_full());
-    CacheBlock* lruBlock;
+    CacheBlock* lruBlock = &blocks[0];
     for (auto &block : blocks)
     {
         if (block.lruPosition > lruBlock->lruPosition)
             lruBlock = &block;
     }
+    CacheBlock blockToReturn = *lruBlock;
     lruBlock->valid = false;
-    return *lruBlock;
+    return blockToReturn;
 }
 
 void FullAssocCache::insert_block_into_nonfull_cache(CacheBlock newBlock)

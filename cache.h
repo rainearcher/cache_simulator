@@ -56,7 +56,7 @@ private:
 
 private:
 	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
-	CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
+	//CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
 	//CacheBlock victim[VICTIM_SIZE];
 	
 	FullAssocCache victimCache;

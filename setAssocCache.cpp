@@ -25,18 +25,20 @@ SetAssocCache::SetAssocCache(int size)
 
 void SetAssocCache::insert_block(CacheBlock block, int addr)
 {
+    sets[l2_index(addr)].insert_block(block, addr);
 }
 
 bool SetAssocCache::addr_hit(int addr)
 {
-    return false;
+    return sets[l2_index(addr)].addr_hit(addr);
 }
 
 CacheBlock SetAssocCache::evict_block(int addr)
 {
-    return CacheBlock();
+    return sets[l2_index(addr)].evict_block(addr);
 }
 
 void SetAssocCache::overwrite_block(CacheBlock newBlock, int addr)
 {
+    sets[l2_index(addr)].overwrite_with_block(newBlock, addr);
 }

@@ -36,8 +36,6 @@ void Cache::mem_read(int addr)
         return;
     }
     stats.missesVic++;
-    read_from_mem(addr);
-    return;
 
     if (L2Cache.addr_hit(addr))
     {
@@ -55,39 +53,6 @@ void Cache::mem_read(int addr)
     stats.missesL2++;
     read_from_mem(addr);
     return;
-    /*
-    int L2offset = block_offset(addr);
-    int L2index = (addr / BLOCK_SIZE) % L2_CACHE_SETS;
-    int L2tag = (addr / BLOCK_SIZE) / L2_CACHE_SETS;
-
-    for (auto &L2block : L2[L2index])
-    {
-        if (L2block.tag == L2tag && L2block.valid)
-        {
-            stats.hitsL2++;
-            CacheBlock targetBlock = L2block;
-            targetBlock.tag = l1_tag(addr);
-
-            CacheBlock L1EvictedBlock = L1[l1_index(addr)];
-            L1EvictedBlock.tag = l1_tag_to_victim_tag(L1EvictedBlock.tag);
-
-            CacheBlock VictimEvictedBlock = get_lru_victim_block();
-            VictimEvictedBlock.tag /= L2_CACHE_SETS;
-
-            L1[l1_index(addr)] = targetBlock;
-            insert_block_into_full_victim_cache(L1EvictedBlock);
-            for (auto &block : L2[L2index])
-            {
-                if (block.valid && block.lruPosition < L2block.lruPosition)
-                    block.lruPosition++;
-            }
-            L2block = VictimEvictedBlock;
-
-        }
-    }
-    
-    read_from_mem(addr);
-    */
 }
 
 void Cache::mem_write(int addr, int* data)

@@ -72,6 +72,8 @@ int main (int argc, char* argv[]) // the program runs like this: ./program <file
 		cur_MemW = traces[traceCounter].MemW;
 		cur_data = traces[traceCounter].data;
 		cur_adr = traces[traceCounter].adr;
+		if(traceCounter == 18)
+			int PAUSE = 1;
 		traceCounter += 1;
 		cache.controller (cur_MemR, cur_MemW, &cur_data, cur_adr); // in your memory controller you need to implement your FSM, LW, SW, and MM. 
 	}
