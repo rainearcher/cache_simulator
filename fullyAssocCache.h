@@ -3,10 +3,10 @@
 #include "cacheBlock.h"
 #include "const.h"
 
-class VictimCache
+class FullAssocCache
 {
 public:
-    VictimCache();
+    FullAssocCache();
 	bool is_full();
 	void insert_block(CacheBlock block, int addr);
 	bool addr_hit(int addr);

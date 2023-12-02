@@ -1,7 +1,7 @@
-#include "victimCache.h"
+#include "fullyAssocCache.h"
 #include "utils.h"
 
-VictimCache::VictimCache()
+FullAssocCache::FullAssocCache()
 {
     for (int i = 0; i < VICTIM_SIZE; i++)
     {
@@ -9,7 +9,7 @@ VictimCache::VictimCache()
     }
 }
 
-bool VictimCache::is_full()
+bool FullAssocCache::is_full()
 {
     for (auto &block : blocks)
     {
@@ -19,7 +19,7 @@ bool VictimCache::is_full()
     return true;
 }
 
-void VictimCache::insert_block(CacheBlock block, int addr)
+void FullAssocCache::insert_block(CacheBlock block, int addr)
 {
     block.tag = victim_tag(addr);
     if (is_full())
@@ -28,7 +28,7 @@ void VictimCache::insert_block(CacheBlock block, int addr)
         insert_block_into_nonfull_victim_cache(block);
 }
 
-bool VictimCache::addr_hit(int addr)
+bool FullAssocCache::addr_hit(int addr)
 {
     CacheBlock* targetBlock = get_block_with_addr(addr);
     if (targetBlock == nullptr)
@@ -37,7 +37,7 @@ bool VictimCache::addr_hit(int addr)
     return true;
 }
 
-CacheBlock VictimCache::evict_block(int addr)
+CacheBlock FullAssocCache::evict_block(int addr)
 {
     CacheBlock* blockToEvict = get_block_with_addr(addr);
     if (blockToEvict == nullptr)
@@ -47,7 +47,7 @@ CacheBlock VictimCache::evict_block(int addr)
     return evictedBlock;
 }
 
-void VictimCache::overwrite_with_block(CacheBlock newBlock, int addr)
+void FullAssocCache::overwrite_with_block(CacheBlock newBlock, int addr)
 {
     newBlock.tag = victim_tag(addr);
     CacheBlock* blockToOverwrite = get_block_with_addr(addr);
@@ -55,7 +55,7 @@ void VictimCache::overwrite_with_block(CacheBlock newBlock, int addr)
     set_block_as_mru(blockToOverwrite);
 }
 
-void VictimCache::insert_block_into_nonfull_victim_cache(CacheBlock newBlock)
+void FullAssocCache::insert_block_into_nonfull_victim_cache(CacheBlock newBlock)
 {
     for (auto &block : blocks)
     {
@@ -68,7 +68,7 @@ void VictimCache::insert_block_into_nonfull_victim_cache(CacheBlock newBlock)
     }
 }
 
-void VictimCache::insert_block_into_full_victim_cache(CacheBlock newBlock)
+void FullAssocCache::insert_block_into_full_victim_cache(CacheBlock newBlock)
 {
     CacheBlock *lruBlock;
     for (auto &block : blocks)
@@ -82,7 +82,7 @@ void VictimCache::insert_block_into_full_victim_cache(CacheBlock newBlock)
     set_block_as_mru(lruBlock);
 }
 
-void VictimCache::set_block_as_mru(CacheBlock *mruBlock)
+void FullAssocCache::set_block_as_mru(CacheBlock *mruBlock)
 {
     for (auto &block : blocks)
     {
@@ -91,7 +91,7 @@ void VictimCache::set_block_as_mru(CacheBlock *mruBlock)
     mruBlock->lruPosition = 0;
 }
 
-CacheBlock *VictimCache::get_block_with_addr(int addr)
+CacheBlock *FullAssocCache::get_block_with_addr(int addr)
 {
     for (auto &block : blocks)
     {

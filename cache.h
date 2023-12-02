@@ -8,7 +8,7 @@
 #include <string>
 #include "const.h"
 #include "cacheBlock.h"
-#include "victimCache.h"
+#include "fullyAssocCache.h"
 
 using namespace std;
 
@@ -53,7 +53,7 @@ private:
 	CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
 	//CacheBlock victim[VICTIM_SIZE];
 	
-	VictimCache victimCache;
+	FullAssocCache victimCache;
 
 	Stats stats;
 	int* mainMemory;
