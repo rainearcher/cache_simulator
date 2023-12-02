@@ -183,23 +183,23 @@ CacheBlock Cache::build_l1_block_from_mem(int addr)
     return memBlock;
 }
 
-float Cache::L1_miss_rate()
+double Cache::L1_miss_rate()
 {
-    return static_cast<float>(stats.missesL1) / (stats.missesL1 + stats.hitsL1);
+    return static_cast<double>(stats.missesL1) / (stats.missesL1 + stats.hitsL1);
 }
 
-float Cache::L2_miss_rate()
+double Cache::L2_miss_rate()
 {
-    return static_cast<float>(stats.missesL2) / (stats.missesL2 + stats.hitsL2);
+    return static_cast<double>(stats.missesL2) / (stats.missesL2 + stats.hitsL2);
 }
 
-float Cache::Victim_miss_rate()
+double Cache::Victim_miss_rate()
 {
-    return static_cast<float>(stats.missesVic) / (stats.missesVic + stats.hitsVic);
+    return static_cast<double>(stats.missesVic) / (stats.missesVic + stats.hitsVic);
 }
 
 
-float Cache::AAT()
+double Cache::AAT()
 {
     return 1 + L1_miss_rate() * (1 + Victim_miss_rate() * (8 + L2_miss_rate() * 100));
 }

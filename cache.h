@@ -28,10 +28,10 @@ class Cache {
 public:
 	Cache(int* mainMem);
 	void controller(bool MemR, bool MemW, int* data, int adr);
-	float L1_miss_rate();
-	float L2_miss_rate();
-	float Victim_miss_rate();
-	float AAT();
+	double L1_miss_rate();
+	double L2_miss_rate();
+	double Victim_miss_rate();
+	double AAT();
 
 private:
 	void mem_read(int addr);
@@ -55,10 +55,7 @@ private:
 	CacheBlock build_block_from_mem(int addr);
 
 private:
-	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
-	//CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
-	//CacheBlock victim[VICTIM_SIZE];
-	
+	CacheBlock L1[L1_CACHE_SETS];
 	FullAssocCache victimCache;
 	SetAssocCache L2Cache;
 
