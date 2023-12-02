@@ -1,18 +1,13 @@
+#ifndef CACHE_H
+#define CACHE_H
+
 #include <iostream>
 #include <bitset>
 #include <stdio.h>
 #include<stdlib.h>
 #include <string>
 using namespace std;
-
-#define L1_CACHE_SETS 16
-#define L2_CACHE_SETS 16
-#define VICTIM_SIZE 4
-#define L2_CACHE_WAYS 8
-#define MEM_SIZE 4096
-#define BLOCK_SIZE 4 // bytes per block
-#define DM 0
-#define SA 1
+#include "const.h"
 
 struct CacheBlock
 {
@@ -34,6 +29,7 @@ struct Stats
 	// add more stat if needed. Don't forget to initialize!
 };
 
+class VictimCache;
 
 class Cache {
 public:
@@ -51,11 +47,8 @@ private:
 	void mem_read(int addr);
 	void mem_write(int addr, int* data);
 
-	int l1_index(int addr);
-	int l1_tag(int addr);
 	bool addr_in_l1(int addr);
 
-	int victim_tag(int addr);
 	bool victim_cache_block_is_target(CacheBlock &block, int addr);
 	void read_mem_into_victim(CacheBlock* targetBlock, int addr);
 	void set_new_victim_block_as_mru(CacheBlock* block);
@@ -65,11 +58,11 @@ private:
 	void insert_block_into_full_victim_cache(CacheBlock block);
 	bool addr_hit_in_victim(int addr);
 	CacheBlock* get_victim_block_with_addr(int addr);
+	CacheBlock get_lru_victim_block();
 
 	void evict_l1(int addr);
 	void swap_target_victim_block_with_evicted_l1_block(CacheBlock &targetBlock, int addr);
 
-	int block_address(int addr);
 
 private:
 	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
@@ -80,4 +73,11 @@ private:
 	int* mainMemory;
 };
 
+class VictimCache
+{
+public:
 
+};
+
+
+#endif
