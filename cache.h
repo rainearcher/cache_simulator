@@ -44,7 +44,6 @@ private:
 	void process_all_cache_miss();
 
 private:
-	CacheBlock L1[L1_CACHE_SETS];
 	DirectMapCache L1Cache;
 	FullAssocCache victimCache;
 	SetAssocCache L2Cache;
