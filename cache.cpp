@@ -44,31 +44,31 @@ void Cache::mem_read()
 
 void Cache::process_l1_hit()
 {
-    stats.hitsL1++;
+    stats.l1_hit();
 }
 
 void Cache::process_victim_hit()
 {
-    stats.missesL1++;
+    stats.l1_miss();
     
-    stats.hitsVic++;
+    stats.victim_hit();
     swap_target_victim_block_with_evicted_l1_block();
 }
 
 void Cache::process_l2_hit()
 {
-    stats.missesL1++;
-    stats.missesVic++;        
+    stats.l1_miss();
+    stats.victim_miss();      
     
-    stats.hitsL2++;
+    stats.l2_hit();
     cycle_to_bring_l2_target_block_to_l1();
 }
 
 void Cache::process_all_cache_miss()
 {
-    stats.missesL1++;
-    stats.missesVic++;
-    stats.missesL2++;
+    stats.l1_miss();
+    stats.victim_miss();
+    stats.l2_miss();
     read_from_mem();
 }
 
@@ -146,21 +146,20 @@ void Cache::copy_mem_into_l1()
 
 double Cache::L1_miss_rate()
 {
-    return static_cast<double>(stats.missesL1) / (stats.missesL1 + stats.hitsL1);
+    return stats.L1_miss_rate();
 }
 
 double Cache::L2_miss_rate()
 {
-    return static_cast<double>(stats.missesL2) / (stats.missesL2 + stats.hitsL2);
+    return stats.L2_miss_rate();
 }
 
 double Cache::Victim_miss_rate()
 {
-    return static_cast<double>(stats.missesVic) / (stats.missesVic + stats.hitsVic);
+    return stats.Victim_miss_rate();
 }
-
 
 double Cache::AAT()
 {
-    return 1 + L1_miss_rate() * (1 + Victim_miss_rate() * (8 + L2_miss_rate() * 100));
+    return stats.AAT();
 }

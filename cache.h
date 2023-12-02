@@ -12,19 +12,9 @@
 #include "setAssocCache.h"
 #include "directMapCache.h"
 #include "blockFactory.h"
+#include "stats.h"
 
 using namespace std;
-
-struct Stats
-{
-	int missesL1 {}; 
-	int missesL2 {}; 
-	int missesVic {};
-	int hitsL1 {};
-	int hitsL2 {};
-	int hitsVic {};
-	// add more stat if needed. Don't forget to initialize!
-};
 
 class Cache {
 public:
