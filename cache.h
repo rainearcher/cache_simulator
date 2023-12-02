@@ -10,6 +10,7 @@
 #include "cacheBlock.h"
 #include "fullyAssocCache.h"
 #include "setAssocCache.h"
+#include "blockFactory.h"
 
 using namespace std;
 
@@ -46,11 +47,6 @@ private:
 	void copy_mem_into_l1();
 	void copy_mem_into_victim();
 	void copy_mem_into_l2();
-	
-	CacheBlock build_l1_block_from_mem();
-	CacheBlock build_victim_block_from_mem();
-	CacheBlock build_l2_block_from_mem();
-	CacheBlock build_block_from_mem();
 
 	void swap_target_victim_block_with_evicted_l1_block();
 	void cycle_to_bring_l2_target_block_to_l1();
@@ -64,6 +60,8 @@ private:
 	CacheBlock L1[L1_CACHE_SETS];
 	FullAssocCache victimCache;
 	SetAssocCache L2Cache;
+
+	MemoryBlockFactory factory;
 
 	Stats stats;
 	int* mainMemory;

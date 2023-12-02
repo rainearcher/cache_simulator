@@ -4,7 +4,8 @@
 
 Cache::Cache(int* mainMem) :
 mainMemory(mainMem),
-victimCache(VICTIM_SIZE)
+victimCache(VICTIM_SIZE),
+factory(mainMem)
 {
 	
 }
@@ -102,7 +103,7 @@ void Cache::mem_write(int* data)
 
 void Cache::read_from_mem()
 {
-    CacheBlock memBlock = build_l1_block_from_mem();
+    CacheBlock memBlock = factory.build_l1_block(addr);
     CacheBlock evictedL1Block = evict_l1_block_with_replacement(memBlock);
     if (!evictedL1Block.valid)
         return;
@@ -147,40 +148,14 @@ void Cache::insert_block_into_l1(CacheBlock block)
 
 void Cache::copy_mem_into_victim()
 {
-    CacheBlock memBlock = build_victim_block_from_mem();
+    CacheBlock memBlock = factory.build_victim_block(addr);
     victimCache.overwrite_with_block(memBlock, addr);
 }
 
 void Cache::copy_mem_into_l2()
 {
-    CacheBlock memBlock = build_l2_block_from_mem();
+    CacheBlock memBlock = factory.build_l2_block(addr);
     L2Cache.overwrite_block(memBlock, addr);
-}
-
-CacheBlock Cache::build_victim_block_from_mem()
-{
-    CacheBlock memBlock = build_block_from_mem();
-    memBlock.tag = victim_tag(addr);
-    return memBlock;
-}
-
-CacheBlock Cache::build_l2_block_from_mem()
-{
-    CacheBlock memBlock = build_block_from_mem();
-    memBlock.tag = l2_tag(addr);
-    return memBlock;
-}
-
-CacheBlock Cache::build_block_from_mem()
-{
-    CacheBlock memBlock;
-    memBlock.valid = true;
-    memBlock.blockNum = block_address(addr);
-    for (int i = 0; i < BLOCK_SIZE; i++)
-    {
-        memBlock.data[i] = mainMemory[block_address(addr) * BLOCK_SIZE + i];
-    }
-    return memBlock;
 }
 
 bool Cache::addr_in_l1()
@@ -192,15 +167,8 @@ bool Cache::addr_in_l1()
 
 void Cache::copy_mem_into_l1()
 {
-    CacheBlock memBlock = build_l1_block_from_mem();
+    CacheBlock memBlock = factory.build_l1_block(addr);
     insert_block_into_l1(memBlock);
-}
-
-CacheBlock Cache::build_l1_block_from_mem()
-{
-    CacheBlock memBlock = build_block_from_mem();
-    memBlock.tag = l1_tag(addr);
-    return memBlock;
 }
 
 double Cache::L1_miss_rate()
