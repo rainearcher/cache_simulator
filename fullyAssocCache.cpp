@@ -1,6 +1,7 @@
 #include <vector>
 #include "fullyAssocCache.h"
 #include "utils.h"
+#include <cassert>
 
 FullAssocCache::FullAssocCache(int s) :
 size(s)
@@ -25,6 +26,19 @@ bool FullAssocCache::is_full()
             return false;
     }
     return true;
+}
+
+CacheBlock FullAssocCache::evict_block_with_replacement(CacheBlock block, int addr)
+{
+    block.tag = tag(addr);
+    CacheBlock blockToReturn;
+    if (is_full())
+    {
+        blockToReturn = evict_lru_block();
+    }
+    
+    insert_block(block, addr);
+    return blockToReturn;
 }
 
 void FullAssocCache::insert_block(CacheBlock block, int addr)
@@ -63,6 +77,25 @@ void FullAssocCache::overwrite_with_block(CacheBlock newBlock, int addr)
     set_block_as_mru(blockToOverwrite);
 }
 
+void FullAssocCache::insert_block_into_full_cache(CacheBlock newBlock)
+{
+    evict_lru_block();
+    insert_block_into_nonfull_cache(newBlock);
+}
+
+CacheBlock FullAssocCache::evict_lru_block()
+{
+    assert(is_full());
+    CacheBlock* lruBlock;
+    for (auto &block : blocks)
+    {
+        if (block.lruPosition > lruBlock->lruPosition)
+            lruBlock = &block;
+    }
+    lruBlock->valid = false;
+    return *lruBlock;
+}
+
 void FullAssocCache::insert_block_into_nonfull_cache(CacheBlock newBlock)
 {
     for (auto &block : blocks)
@@ -74,20 +107,6 @@ void FullAssocCache::insert_block_into_nonfull_cache(CacheBlock newBlock)
             return;
         }
     }
-}
-
-void FullAssocCache::insert_block_into_full_cache(CacheBlock newBlock)
-{
-    CacheBlock *lruBlock;
-    for (auto &block : blocks)
-    {
-        if (block.lruPosition > lruBlock->lruPosition)
-        {
-            lruBlock = &block;
-        }
-    }
-    *lruBlock = newBlock;
-    set_block_as_mru(lruBlock);
 }
 
 void FullAssocCache::set_block_as_mru(CacheBlock *mruBlock)

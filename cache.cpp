@@ -38,6 +38,23 @@ void Cache::mem_read(int addr)
     stats.missesVic++;
     read_from_mem(addr);
     return;
+
+    if (L2Cache.addr_hit(addr))
+    {
+        stats.hitsL2++;
+        CacheBlock evictedL2Block = L2Cache.evict_block(addr);
+        CacheBlock evictedL1Block = evict_l1_block(addr);
+        CacheBlock evictedVictimBlock = victimCache.evict_lru_block();
+
+        insert_block_into_l1(evictedL2Block, addr);
+        victimCache.insert_block(evictedL1Block, 
+                get_addr_from_l1_tag_and_index(evictedL1Block.tag, l1_index(addr)));
+        L2Cache.insert_block(evictedVictimBlock, get_addr_from_victim_tag(evictedVictimBlock.tag));
+        return;
+    }
+    stats.missesL2++;
+    read_from_mem(addr);
+    return;
     /*
     int L2offset = block_offset(addr);
     int L2index = (addr / BLOCK_SIZE) % L2_CACHE_SETS;
@@ -87,15 +104,27 @@ void Cache::mem_write(int addr, int* data)
         copy_mem_into_victim(addr);
         return;
     }
+
+    if (L2Cache.addr_hit(addr))
+    {
+        copy_mem_into_l2(addr);
+        return;
+    }
 }
 
 void Cache::read_from_mem(int addr)
 {
-    CacheBlock evictedBlock = read_mem_into_l1(addr);
-    if (!evictedBlock.valid)
+    CacheBlock evictedL1Block = read_mem_into_l1(addr);
+    if (!evictedL1Block.valid)
         return;
 
-    victimCache.insert_block(evictedBlock, get_addr_from_l1_tag_and_index(evictedBlock.tag, l1_index(addr)));
+    int victAddr = get_addr_from_l1_tag_and_index(evictedL1Block.tag, l1_index(addr));
+    CacheBlock evictedVictimBlock = victimCache.evict_block_with_replacement(evictedL1Block, victAddr);
+    if (!evictedVictimBlock.valid)
+        return;
+
+    int L2addr = get_addr_from_victim_tag(evictedVictimBlock.tag);
+    L2Cache.insert_block(evictedVictimBlock, L2addr);
 }
 
 CacheBlock Cache::evict_l1_block(int addr)
@@ -135,11 +164,30 @@ void Cache::copy_mem_into_victim(int addr)
     victimCache.overwrite_with_block(memBlock, addr);
 }
 
+void Cache::copy_mem_into_l2(int addr)
+{
+    CacheBlock memBlock = build_l2_block_from_mem(addr);
+    L2Cache.overwrite_block(memBlock, addr);
+}
+
 CacheBlock Cache::build_victim_block_from_mem(int addr)
+{
+    CacheBlock memBlock = build_block_from_mem(addr);
+    memBlock.tag = victim_tag(addr);
+    return memBlock;
+}
+
+CacheBlock Cache::build_l2_block_from_mem(int addr)
+{
+    CacheBlock memBlock = build_block_from_mem(addr);
+    memBlock.tag = l2_tag(addr);
+    return memBlock;
+}
+
+CacheBlock Cache::build_block_from_mem(int addr)
 {
     CacheBlock memBlock;
     memBlock.valid = true;
-    memBlock.tag = victim_tag(addr);
     memBlock.blockNum = block_address(addr);
     for (int i = 0; i < BLOCK_SIZE; i++)
     {
@@ -165,15 +213,9 @@ CacheBlock Cache::read_mem_into_l1(int addr)
 
 CacheBlock Cache::build_l1_block_from_mem(int addr)
 {
-    CacheBlock l1Block;
-    for (int i = 0; i < BLOCK_SIZE; i++)
-    {
-        l1Block.data[i] = mainMemory[block_address(addr) * BLOCK_SIZE + i];
-    }
-    l1Block.tag = l1_tag(addr);
-    l1Block.valid = true;
-    l1Block.blockNum = block_address(addr);
-    return l1Block;
+    CacheBlock memBlock = build_block_from_mem(addr);
+    memBlock.tag = l1_tag(addr);
+    return memBlock;
 }
 
 float Cache::L1_miss_rate()

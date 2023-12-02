@@ -9,6 +9,7 @@ class FullAssocCache
 public:
     FullAssocCache(int size);
 	bool is_full();
+	CacheBlock evict_block_with_replacement(CacheBlock block, int addr);
 	void insert_block(CacheBlock block, int addr);
 	bool addr_hit(int addr);
     CacheBlock evict_block(int addr);

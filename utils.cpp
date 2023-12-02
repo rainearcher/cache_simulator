@@ -40,3 +40,23 @@ int get_addr_from_l1_tag_and_index(int tag, int index)
 {
     return (tag * L1_CACHE_SETS + index) * BLOCK_SIZE;
 }
+
+int l2_tag(int addr)
+{
+    return (addr / BLOCK_SIZE) / L2_CACHE_SETS;
+}
+
+int l2_index(int addr)
+{
+    return (addr / BLOCK_SIZE) % L2_CACHE_SETS;
+}
+
+bool l2_cache_block_is_target(const CacheBlock& block, int addr)
+{
+    return block.tag == l2_tag(addr) && block.valid;
+}
+
+int get_addr_from_victim_tag(int tag)
+{
+    return tag * BLOCK_SIZE;
+}

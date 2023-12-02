@@ -10,4 +10,8 @@ int l1_tag(int addr);
 int l1_tag_to_victim_tag(int l1Tag);
 bool victim_cache_block_is_target(const CacheBlock &block, int addr);
 int get_addr_from_l1_tag_and_index(int tag, int index);
+int l2_tag(int addr);
+int l2_index(int addr);
+bool l2_cache_block_is_target(const CacheBlock& block, int addr);
+int get_addr_from_victim_tag(int tag);
 #endif

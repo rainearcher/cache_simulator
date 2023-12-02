@@ -9,6 +9,7 @@
 #include "const.h"
 #include "cacheBlock.h"
 #include "fullyAssocCache.h"
+#include "setAssocCache.h"
 
 using namespace std;
 
@@ -48,12 +49,18 @@ private:
 	CacheBlock build_l1_block_from_mem(int addr);
 	CacheBlock build_victim_block_from_mem(int addr);
 
+	CacheBlock build_l2_block_from_mem(int addr);
+	void copy_mem_into_l2(int addr);
+
+	CacheBlock build_block_from_mem(int addr);
+
 private:
 	CacheBlock L1[L1_CACHE_SETS]; // 1 set per row.
 	CacheBlock L2[L2_CACHE_SETS][L2_CACHE_WAYS]; // x ways per row 
 	//CacheBlock victim[VICTIM_SIZE];
 	
 	FullAssocCache victimCache;
+	SetAssocCache L2Cache;
 
 	Stats stats;
 	int* mainMemory;
