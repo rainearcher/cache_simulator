@@ -28,9 +28,9 @@ void SetAssocCache::insert_block(CacheBlock block, int addr)
     sets[l2_index(addr)].insert_block(block, addr);
 }
 
-bool SetAssocCache::addr_hit(int addr)
+bool SetAssocCache::contains_addr(int addr)
 {
-    return sets[l2_index(addr)].addr_hit(addr);
+    return sets[l2_index(addr)].contains_addr(addr);
 }
 
 CacheBlock SetAssocCache::evict_block(int addr)

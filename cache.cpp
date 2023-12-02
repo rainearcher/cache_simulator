@@ -8,78 +8,102 @@ victimCache(VICTIM_SIZE)
 {
 	
 }
-void Cache::controller(bool MemR, bool MemW, int* data, int addr)
+void Cache::controller(bool MemR, bool MemW, int* data, int inputAddr)
 {
+    addr = inputAddr;
     if (MemR)
     {
-        mem_read(addr);
+        mem_read();
     }
     else // MemW
     {
-        mem_write(addr, data);
+        mem_write(data);
     }
 }
 
-void Cache::mem_read(int addr)
+void Cache::mem_read()
 {
-    if (addr_in_l1(addr))
+    if (addr_in_l1())
     {
-        stats.hitsL1++;
-        return;
+        process_l1_hit();
     }
-
-    stats.missesL1++;
-
-    if (addr_hit_in_victim(addr))
+    else if (victimCache.contains_addr(addr))
     {
-        stats.hitsVic++;
-        return;
+        process_victim_hit();
     }
-    stats.missesVic++;
-
-    if (L2Cache.addr_hit(addr))
+    else if (L2Cache.contains_addr(addr))
     {
-        stats.hitsL2++;
-        CacheBlock evictedL2Block = L2Cache.evict_block(addr);
-        CacheBlock evictedL1Block = evict_l1_block(addr);
-        CacheBlock evictedVictimBlock = victimCache.evict_lru_block();
-
-        insert_block_into_l1(evictedL2Block, addr);
-        victimCache.insert_block(evictedL1Block, 
-                get_addr_from_l1_tag_and_index(evictedL1Block.tag, l1_index(addr)));
-        L2Cache.insert_block(evictedVictimBlock, get_addr_from_victim_tag(evictedVictimBlock.tag));
-        return;
+        process_l2_hit();
     }
-    stats.missesL2++;
-    read_from_mem(addr);
-    return;
+    else
+    {
+        process_all_cache_miss();
+    }
 }
 
-void Cache::mem_write(int addr, int* data)
+void Cache::process_l1_hit()
+{
+    stats.hitsL1++;
+}
+
+void Cache::process_victim_hit()
+{
+    stats.missesL1++;
+    
+    stats.hitsVic++;
+    swap_target_victim_block_with_evicted_l1_block();
+}
+
+void Cache::process_l2_hit()
+{
+    stats.missesL1++;
+    stats.missesVic++;        
+    
+    stats.hitsL2++;
+    cycle_to_bring_l2_target_block_to_l1();
+}
+
+void Cache::process_all_cache_miss()
+{
+    stats.missesL1++;
+    stats.missesVic++;
+    stats.missesL2++;
+    read_from_mem();
+}
+
+void Cache::cycle_to_bring_l2_target_block_to_l1()
+{
+    CacheBlock evictedL2Block = L2Cache.evict_block(addr);
+    CacheBlock evictedL1Block = evict_l1_block();
+    CacheBlock evictedVictimBlock = victimCache.evict_lru_block();
+
+    insert_block_into_l1(evictedL2Block);
+    victimCache.insert_block(evictedL1Block, 
+            get_addr_from_l1_tag_and_index(evictedL1Block.tag, l1_index(addr)));
+    L2Cache.insert_block(evictedVictimBlock, get_addr_from_victim_tag(evictedVictimBlock.tag));
+}
+
+void Cache::mem_write(int* data)
 {
     mainMemory[addr] = *data;
-    if (addr_in_l1(addr))
+    if (addr_in_l1())
     {
-        read_mem_into_l1(addr);
-        return;
+        copy_mem_into_l1();
     }
-
-    if (victimCache.addr_hit(addr))
+    else if (victimCache.contains_addr(addr))
     {
-        copy_mem_into_victim(addr);
-        return;
+        copy_mem_into_victim();
     }
-
-    if (L2Cache.addr_hit(addr))
+    else if (L2Cache.contains_addr(addr))
     {
-        copy_mem_into_l2(addr);
-        return;
+        copy_mem_into_l2();
     }
 }
 
-void Cache::read_from_mem(int addr)
+void Cache::read_from_mem()
 {
-    CacheBlock evictedL1Block = read_mem_into_l1(addr);
+    CacheBlock memBlock = build_l1_block_from_mem();
+    CacheBlock evictedL1Block = evict_l1_block_with_replacement(memBlock);
     if (!evictedL1Block.valid)
         return;
 
@@ -92,64 +116,62 @@ void Cache::read_from_mem(int addr)
     L2Cache.insert_block(evictedVictimBlock, L2addr);
 }
 
-CacheBlock Cache::evict_l1_block(int addr)
+CacheBlock Cache::evict_l1_block_with_replacement(CacheBlock block)
+{
+    CacheBlock evictedBlock = evict_l1_block();
+    insert_block_into_l1(block);
+    return evictedBlock;
+}
+
+CacheBlock Cache::evict_l1_block()
 {
     CacheBlock evictedBlock = L1[l1_index(addr)];
     L1[l1_index(addr)].valid = false;
     return evictedBlock;
 }
 
-bool Cache::addr_hit_in_victim(int addr)
-{
-    if (!victimCache.addr_hit(addr))
-        return false;
-
-    swap_target_victim_block_with_evicted_l1_block(addr);
-    return true;
-}
-
-void Cache::swap_target_victim_block_with_evicted_l1_block(int addr)
+void Cache::swap_target_victim_block_with_evicted_l1_block()
 {
     CacheBlock evictedVictimBlock = victimCache.evict_block(addr);
-    CacheBlock evictedL1Block = evict_l1_block(addr);
+    CacheBlock evictedL1Block = evict_l1_block();
 
     victimCache.insert_block(evictedL1Block, get_addr_from_l1_tag_and_index(evictedL1Block.tag, l1_index(addr)));
-    insert_block_into_l1(evictedVictimBlock, addr);
+    insert_block_into_l1(evictedVictimBlock);
 }
 
-void Cache::insert_block_into_l1(CacheBlock block, int addr)
+void Cache::insert_block_into_l1(CacheBlock block)
 {
     block.tag = l1_tag(addr);
     L1[l1_index(addr)] = block;
 }
 
-void Cache::copy_mem_into_victim(int addr)
+void Cache::copy_mem_into_victim()
 {
-    CacheBlock memBlock = build_victim_block_from_mem(addr);
+    CacheBlock memBlock = build_victim_block_from_mem();
     victimCache.overwrite_with_block(memBlock, addr);
 }
 
-void Cache::copy_mem_into_l2(int addr)
+void Cache::copy_mem_into_l2()
 {
-    CacheBlock memBlock = build_l2_block_from_mem(addr);
+    CacheBlock memBlock = build_l2_block_from_mem();
     L2Cache.overwrite_block(memBlock, addr);
 }
 
-CacheBlock Cache::build_victim_block_from_mem(int addr)
+CacheBlock Cache::build_victim_block_from_mem()
 {
-    CacheBlock memBlock = build_block_from_mem(addr);
+    CacheBlock memBlock = build_block_from_mem();
     memBlock.tag = victim_tag(addr);
     return memBlock;
 }
 
-CacheBlock Cache::build_l2_block_from_mem(int addr)
+CacheBlock Cache::build_l2_block_from_mem()
 {
-    CacheBlock memBlock = build_block_from_mem(addr);
+    CacheBlock memBlock = build_block_from_mem();
     memBlock.tag = l2_tag(addr);
     return memBlock;
 }
 
-CacheBlock Cache::build_block_from_mem(int addr)
+CacheBlock Cache::build_block_from_mem()
 {
     CacheBlock memBlock;
     memBlock.valid = true;
@@ -161,24 +183,22 @@ CacheBlock Cache::build_block_from_mem(int addr)
     return memBlock;
 }
 
-bool Cache::addr_in_l1(int addr)
+bool Cache::addr_in_l1()
 {
     int index = l1_index(addr);
     int tag = l1_tag(addr);
     return L1[index].tag == tag && L1[index].valid;
 }
 
-CacheBlock Cache::read_mem_into_l1(int addr)
+void Cache::copy_mem_into_l1()
 {
-    int index = l1_index(addr);
-    CacheBlock oldBlock = L1[index];
-    L1[index] = build_l1_block_from_mem(addr);
-    return oldBlock;
+    CacheBlock memBlock = build_l1_block_from_mem();
+    insert_block_into_l1(memBlock);
 }
 
-CacheBlock Cache::build_l1_block_from_mem(int addr)
+CacheBlock Cache::build_l1_block_from_mem()
 {
-    CacheBlock memBlock = build_block_from_mem(addr);
+    CacheBlock memBlock = build_block_from_mem();
     memBlock.tag = l1_tag(addr);
     return memBlock;
 }

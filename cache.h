@@ -34,25 +34,31 @@ public:
 	double AAT();
 
 private:
-	void mem_read(int addr);
-	void mem_write(int addr, int* data);
+	void mem_read();
+	void mem_write(int* data);
 
-	bool addr_in_l1(int addr);
-	bool addr_hit_in_victim(int addr);
-	void read_from_mem(int addr);
-	void swap_target_victim_block_with_evicted_l1_block(int addr);
-	CacheBlock evict_l1_block(int addr);
-	void insert_block_into_l1(CacheBlock block, int addr);
+	bool addr_in_l1();
+	void read_from_mem();
+	CacheBlock evict_l1_block();
+	CacheBlock evict_l1_block_with_replacement(CacheBlock block);
+	void insert_block_into_l1(CacheBlock block);
 
-	CacheBlock read_mem_into_l1(int addr);
-	void copy_mem_into_victim(int addr);
-	CacheBlock build_l1_block_from_mem(int addr);
-	CacheBlock build_victim_block_from_mem(int addr);
+	void copy_mem_into_l1();
+	void copy_mem_into_victim();
+	void copy_mem_into_l2();
+	
+	CacheBlock build_l1_block_from_mem();
+	CacheBlock build_victim_block_from_mem();
+	CacheBlock build_l2_block_from_mem();
+	CacheBlock build_block_from_mem();
 
-	CacheBlock build_l2_block_from_mem(int addr);
-	void copy_mem_into_l2(int addr);
+	void swap_target_victim_block_with_evicted_l1_block();
+	void cycle_to_bring_l2_target_block_to_l1();
 
-	CacheBlock build_block_from_mem(int addr);
+	void process_l1_hit();
+	void process_victim_hit();
+	void process_l2_hit();
+	void process_all_cache_miss();
 
 private:
 	CacheBlock L1[L1_CACHE_SETS];
@@ -61,6 +67,7 @@ private:
 
 	Stats stats;
 	int* mainMemory;
+	int addr;
 };
 
 

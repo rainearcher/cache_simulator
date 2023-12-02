@@ -50,7 +50,7 @@ void FullAssocCache::insert_block(CacheBlock block, int addr)
         insert_block_into_nonfull_cache(block);
 }
 
-bool FullAssocCache::addr_hit(int addr)
+bool FullAssocCache::contains_addr(int addr)
 {
     CacheBlock* targetBlock = get_block_with_addr(addr);
     if (targetBlock == nullptr)

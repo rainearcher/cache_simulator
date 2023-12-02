@@ -11,7 +11,7 @@ public:
 	bool is_full();
 	CacheBlock evict_block_with_replacement(CacheBlock block, int addr);
 	void insert_block(CacheBlock block, int addr);
-	bool addr_hit(int addr);
+	bool contains_addr(int addr);
     CacheBlock evict_block(int addr);
     CacheBlock evict_lru_block();
 	void overwrite_with_block(CacheBlock newBlock, int addr);

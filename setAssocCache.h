@@ -19,7 +19,7 @@ class SetAssocCache
 public:
     SetAssocCache(int size=L2_CACHE_SETS);
     void insert_block(CacheBlock block, int addr);
-    bool addr_hit(int addr);
+    bool contains_addr(int addr);
     CacheBlock evict_block(int addr);
     void overwrite_block(CacheBlock newBlock, int addr);
 private:
