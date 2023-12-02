@@ -10,6 +10,7 @@
 #include "cacheBlock.h"
 #include "fullyAssocCache.h"
 #include "setAssocCache.h"
+#include "directMapCache.h"
 #include "blockFactory.h"
 
 using namespace std;
@@ -38,11 +39,7 @@ private:
 	void mem_read();
 	void mem_write(int* data);
 
-	bool addr_in_l1();
 	void read_from_mem();
-	CacheBlock evict_l1_block();
-	CacheBlock evict_l1_block_with_replacement(CacheBlock block);
-	void insert_block_into_l1(CacheBlock block);
 
 	void copy_mem_into_l1();
 	void copy_mem_into_victim();
@@ -58,6 +55,7 @@ private:
 
 private:
 	CacheBlock L1[L1_CACHE_SETS];
+	DirectMapCache L1Cache;
 	FullAssocCache victimCache;
 	SetAssocCache L2Cache;
 
