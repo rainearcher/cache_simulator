@@ -3,7 +3,8 @@
 #include "cacheBlock.h"
 
 Cache::Cache(int* mainMem) :
-mainMemory(mainMem)
+mainMemory(mainMem),
+victimCache(VICTIM_SIZE)
 {
 	
 }
