@@ -1,13 +1,13 @@
+#include <iomanip>
+#include <iostream>
 #include "cache.h"
 #include "utils.h"
 #include "cacheBlock.h"
 
-Cache::Cache(int* mainMem) :
-mainMemory(mainMem),
+Cache::Cache() :
 victimCache(VICTIM_SIZE),
-factory(mainMem)
+factory(MemoryBlockFactory(mainMemory))
 {
-	
 }
 void Cache::controller(bool MemR, bool MemW, int* data, int inputAddr)
 {
@@ -144,22 +144,10 @@ void Cache::copy_mem_into_l1()
     L1Cache.insert_block(memBlock, addr);
 }
 
-double Cache::L1_miss_rate()
+void Cache::output_stats()
 {
-    return stats.L1_miss_rate();
-}
-
-double Cache::L2_miss_rate()
-{
-    return stats.L2_miss_rate();
-}
-
-double Cache::Victim_miss_rate()
-{
-    return stats.Victim_miss_rate();
-}
-
-double Cache::AAT()
-{
-    return stats.AAT();
+	cout<< setprecision(10) << "(" 
+		<< stats.L1_miss_rate() <<","
+		<< stats.L2_miss_rate() <<","
+		<< stats.AAT() <<")"<<endl;
 }

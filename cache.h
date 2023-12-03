@@ -1,11 +1,6 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#include <iostream>
-#include <bitset>
-#include <stdio.h>
-#include<stdlib.h>
-#include <string>
 #include "const.h"
 #include "cacheBlock.h"
 #include "fullyAssocCache.h"
@@ -18,12 +13,9 @@ using namespace std;
 
 class Cache {
 public:
-	Cache(int* mainMem);
+	Cache();
 	void controller(bool MemR, bool MemW, int* data, int adr);
-	double L1_miss_rate();
-	double L2_miss_rate();
-	double Victim_miss_rate();
-	double AAT();
+	void output_stats();
 
 private:
 	void mem_read();
@@ -51,7 +43,7 @@ private:
 	MemoryBlockFactory factory;
 
 	Stats stats;
-	int* mainMemory;
+	int mainMemory[MEM_SIZE];
 	int addr;
 };
 
