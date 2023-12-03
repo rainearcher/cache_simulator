@@ -8,7 +8,6 @@ class FullAssocCache
 {
 public:
     FullAssocCache(int size);
-	bool is_full();
 	CacheBlock evict_block_with_replacement(const CacheBlock& block, int addr);
 	void insert_block(CacheBlock block, int addr);
 	bool contains_addr(int addr);
@@ -16,6 +15,7 @@ public:
     CacheBlock evict_lru_block();
 	void overwrite_with_block(const CacheBlock& newBlock, int addr);
 private:
+	bool is_full();
 	void insert_block_into_nonfull_cache(const CacheBlock& block);
 	void insert_block_into_full_cache(const CacheBlock& block);
 	void set_block_as_mru(CacheBlock* block);
