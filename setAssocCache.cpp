@@ -23,7 +23,7 @@ SetAssocCache::SetAssocCache(int size)
     sets = std::vector<SACacheSet>(size);
 }
 
-void SetAssocCache::insert_block(CacheBlock block, int addr)
+void SetAssocCache::insert_block(const CacheBlock& block, int addr)
 {
     sets[l2_index(addr)].insert_block(block, addr);
 }
@@ -38,7 +38,7 @@ CacheBlock SetAssocCache::evict_block(int addr)
     return sets[l2_index(addr)].evict_block(addr);
 }
 
-void SetAssocCache::overwrite_block(CacheBlock newBlock, int addr)
+void SetAssocCache::overwrite_block(const CacheBlock& newBlock, int addr)
 {
     sets[l2_index(addr)].overwrite_with_block(newBlock, addr);
 }

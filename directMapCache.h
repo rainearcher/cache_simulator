@@ -11,8 +11,8 @@ public:
     DirectMapCache(int size=L1_CACHE_SETS);
     bool contains_addr(int addr);
     CacheBlock evict_block(int addr);
-	CacheBlock evict_block_with_replacement(CacheBlock block, int addr);
-	void insert_block(CacheBlock block, int addr);
+	CacheBlock evict_block_with_replacement(const CacheBlock &block, int addr);
+	void insert_block(const CacheBlock &block, int addr);
 private:
     int size;
     std::vector<CacheBlock> blocks;

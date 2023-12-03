@@ -28,9 +28,8 @@ bool FullAssocCache::is_full()
     return true;
 }
 
-CacheBlock FullAssocCache::evict_block_with_replacement(CacheBlock block, int addr)
+CacheBlock FullAssocCache::evict_block_with_replacement(const CacheBlock& block, int addr)
 {
-    block.tag = tag(addr);
     CacheBlock blockToReturn;
     if (is_full())
     {
@@ -69,15 +68,15 @@ CacheBlock FullAssocCache::evict_block(int addr)
     return evictedBlock;
 }
 
-void FullAssocCache::overwrite_with_block(CacheBlock newBlock, int addr)
+void FullAssocCache::overwrite_with_block(const CacheBlock& newBlock, int addr)
 {
-    newBlock.tag = tag(addr);
     CacheBlock* blockToOverwrite = get_block_with_addr(addr);
     *blockToOverwrite = newBlock;
+    blockToOverwrite->tag = tag(addr);
     set_block_as_mru(blockToOverwrite);
 }
 
-void FullAssocCache::insert_block_into_full_cache(CacheBlock newBlock)
+void FullAssocCache::insert_block_into_full_cache(const CacheBlock& newBlock)
 {
     evict_lru_block();
     insert_block_into_nonfull_cache(newBlock);
@@ -97,7 +96,7 @@ CacheBlock FullAssocCache::evict_lru_block()
     return blockToReturn;
 }
 
-void FullAssocCache::insert_block_into_nonfull_cache(CacheBlock newBlock)
+void FullAssocCache::insert_block_into_nonfull_cache(const CacheBlock& newBlock)
 {
     for (auto &block : blocks)
     {

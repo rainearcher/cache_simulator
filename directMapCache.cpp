@@ -20,15 +20,15 @@ CacheBlock DirectMapCache::evict_block(int addr)
     return evictedBlock;
 }
 
-CacheBlock DirectMapCache::evict_block_with_replacement(CacheBlock block, int addr)
+CacheBlock DirectMapCache::evict_block_with_replacement(const CacheBlock &block, int addr)
 {
     CacheBlock evictedBlock = evict_block(addr);
     insert_block(block, addr);
     return evictedBlock;
 }
 
-void DirectMapCache::insert_block(CacheBlock block, int addr)
+void DirectMapCache::insert_block(const CacheBlock &block, int addr)
 {
-    block.tag = l1_tag(addr);
     blocks[l1_index(addr)] = block;
+    blocks[l1_index(addr)].tag = l1_tag(addr);
 }
